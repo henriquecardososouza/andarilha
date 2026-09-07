@@ -17,6 +17,8 @@
         "@laravel/multiplex": "^0.4.1"
     },
     "dependencies": {
-        "alpinejs": "^3.17.1"
+        "alpinejs": "^3.17.1",
+        "flatpickr": "^4.6.13",
+        "tippy.js": "^6.3.7"
     }
 }
