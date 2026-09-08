@@ -55,26 +55,41 @@ function onReady(callback) {
         : callback()
 }
 
-function initTooltips() {
-    const targets = document.querySelectorAll('[data-tooltip]')
+let tooltips = []
+let tooltipSingleton = null
 
-    if (! targets.length) {
+function initTooltips() {
+    const fresh = document.querySelectorAll('[data-tooltip]:not([data-tooltip-ready])')
+
+    fresh.forEach((target) => target.setAttribute('data-tooltip-ready', ''))
+
+    const stale = tooltips.filter((instance) => ! instance.reference.isConnected)
+
+    tooltips = tooltips
+        .filter((instance) => instance.reference.isConnected)
+        .concat(fresh.length ? tippy(fresh, {
+            content: (target) => target.dataset.tooltip,
+            trigger: 'mouseenter',
+        }) : [])
+
+    if (! tooltips.length) {
         return
     }
 
-    const instances = tippy(targets, {
-        content: (target) => target.dataset.tooltip,
-        trigger: 'mouseenter',
-    })
+    if (tooltipSingleton) {
+        tooltipSingleton.setInstances(tooltips)
+    } else {
+        tooltipSingleton = createSingleton(tooltips, {
+            theme: 'andarilha',
+            placement: 'top',
+            offset: [0, 14],
+            trigger: 'mouseenter',
+            delay: [60, 140],
+            moveTransition: 'transform 0.35s cubic-bezier(0.22, 1, 0.36, 1)',
+        })
+    }
 
-    createSingleton(instances, {
-        theme: 'andarilha',
-        placement: 'top',
-        offset: [0, 14],
-        trigger: 'mouseenter',
-        delay: [60, 140],
-        moveTransition: 'transform 0.35s cubic-bezier(0.22, 1, 0.36, 1)',
-    })
+    stale.forEach((instance) => instance.destroy())
 }
 
 function initDotGrid() {
@@ -120,9 +135,6 @@ function initDatePickers() {
 
     const locales = { pt: Portuguese, es: Spanish }
     const language = document.documentElement.lang.slice(0, 2)
-    const tomorrow = new Date()
-
-    tomorrow.setDate(tomorrow.getDate() + 1)
 
     inputs.forEach((input) => {
         const picker = flatpickr(input, {
@@ -130,7 +142,7 @@ function initDatePickers() {
             dateFormat: 'Y-m-d',
             altInput: true,
             altFormat: input.dataset.flatpickr || 'd/m/Y',
-            minDate: input.getAttribute('min') || tomorrow,
+            minDate: input.getAttribute('min'),
             disableMobile: true,
             monthSelectorType: 'static',
         })
@@ -177,4 +189,6 @@ onReady(() => {
     initDatePickers()
     initDotGrid()
     initReveal()
+
+    window.addEventListener('table-updated', () => initTooltips())
 });

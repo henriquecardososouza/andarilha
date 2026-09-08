@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Notifications\EmailVerification;
+use App\Notifications\PasswordResetLink;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -12,7 +14,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'has_changed_password'])]
+#[Fillable(['name', 'email', 'password', 'has_changed_password', 'blocked'])]
 #[Hidden(['password', 'remember_token'])]
 #[Table(key: 'uuid')]
 class User extends Authenticatable implements MustVerifyEmail
@@ -30,7 +32,18 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'has_changed_password' => 'boolean'
+            'has_changed_password' => 'boolean',
+            'blocked' => 'boolean'
         ];
+    }
+
+    public function sendPasswordResetNotification(#[\SensitiveParameter] $token): void
+    {
+        $this->notify(new PasswordResetLink($token));
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new EmailVerification);
     }
 }

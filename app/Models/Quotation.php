@@ -17,7 +17,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'user_email',
     'trip_date',
     'description',
-    'status'
+    'status',
+    'price',
+    'answered_at'
 ])]
 #[Table(key: 'uuid')]
 class Quotation extends Model
@@ -33,8 +35,22 @@ class Quotation extends Model
             'user_email' => 'string',
             'trip_date' => 'date',
             'description' => 'string',
-            'status' => QuotationTypesEnum::class
+            'status' => QuotationTypesEnum::class,
+            'price' => 'decimal:2',
+            'answered_at' => 'datetime'
         ];
+    }
+
+    public function formattedTripDate(): string
+    {
+        return $this->trip_date?->format('d/m/Y') ?? '';
+    }
+
+    public function formattedPrice(): ?string
+    {
+        return $this->price === null
+            ? null
+            : __('admin.quotations.currency', ['value' => number_format((float) $this->price, 2, ',', '.')]);
     }
 
     /**

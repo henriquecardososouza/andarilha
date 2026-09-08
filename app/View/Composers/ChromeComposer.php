@@ -24,6 +24,7 @@ class ChromeComposer
             'currentLocale' => app()->getLocale(),
             'channels' => $this->content->channels(),
             'year' => date('Y'),
+            'authenticated' => auth()->user(),
         ]);
     }
 }

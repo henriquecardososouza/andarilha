@@ -19,6 +19,15 @@
                         {{ __('landing.nav.'.$item['key']) }}
                     </a>
                 @endforeach
+                @if ($authenticated)
+                    <a href="{{ route('admin.quotations.index') }}" class="text-[12px] text-white/55 transition-colors hover:text-white">
+                        {{ __('admin.nav.quotations') }}
+                    </a>
+                @else
+                    <a href="{{ route('admin.login') }}" class="text-[12px] text-white/55 transition-colors hover:text-white">
+                        {{ __('landing.nav.restricted') }}
+                    </a>
+                @endif
             </nav>
 
             <div>

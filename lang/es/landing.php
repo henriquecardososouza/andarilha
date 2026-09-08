@@ -17,6 +17,7 @@ return [
         'about' => 'Nosotros',
         'destinations' => 'Destinos',
         'contact' => 'Contacto',
+        'restricted' => 'Área restringida',
     ],
 
     'actions' => [

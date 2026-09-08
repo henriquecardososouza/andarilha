@@ -21,50 +21,74 @@
                 @endforeach
             </nav>
 
-            <div x-data="{ open: false }" @click.outside="open = false" @keydown.escape="open = false" class="relative">
-                <button type="button" @click="open = !open" :aria-expanded="open" aria-haspopup="true"
-                        aria-label="{{ __('landing.actions.language') }}"
-                        class="label-xs flex items-center gap-2 px-2 py-2 text-white/70 transition-colors hover:text-white">
-                    <svg class="size-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="9"/>
-                        <path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18-2.5-2.6-2.5-15.4 0-18Z"/>
-                    </svg>
-                    <span>{{ $locales[$currentLocale]['short'] ?? strtoupper($currentLocale) }}</span>
-                    <svg class="size-3 transition-transform duration-200" :class="open && 'rotate-180'"
-                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="m6 9 6 6 6-6"/>
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div x-data="{ open: false }" @click.outside="open = false" @keydown.escape="open = false" class="relative">
+                    <button type="button" @click="open = !open" :aria-expanded="open" aria-haspopup="true"
+                            aria-label="{{ __('landing.actions.language') }}"
+                            class="label-xs flex items-center gap-2 px-2 py-2 text-white/70 transition-colors hover:text-white">
+                        <svg class="size-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="9"/>
+                            <path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18-2.5-2.6-2.5-15.4 0-18Z"/>
+                        </svg>
+                        <span>{{ $locales[$currentLocale]['short'] ?? strtoupper($currentLocale) }}</span>
+                        <svg class="size-3 transition-transform duration-200" :class="open && 'rotate-180'"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m6 9 6 6 6-6"/>
+                        </svg>
+                    </button>
+
+                    <div x-cloak x-show="open"
+                         x-transition:enter="transition duration-200 ease-out"
+                         x-transition:enter-start="opacity-0 -translate-y-1"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition duration-150 ease-in"
+                         x-transition:leave-start="opacity-100"
+                         x-transition:leave-end="opacity-0"
+                         class="absolute right-0 top-full z-50 mt-3 w-48 rounded-xl border border-white/15 bg-night-900/95 py-1.5 shadow-2xl shadow-night-950/50 backdrop-blur-md">
+                        @foreach ($locales as $code => $meta)
+                            <a href="{{ route('locale.switch', $code) }}"
+                               @if ($code === $currentLocale) aria-current="true" @endif
+                               class="flex items-center justify-between px-4 py-2.5 text-[12px] transition-colors {{ $code === $currentLocale ? 'text-white' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
+                                <span>{{ $meta['label'] }}</span>
+                                @if ($code === $currentLocale)
+                                    <span class="size-1.5 rounded-full bg-ember-500"></span>
+                                @else
+                                    <span class="label-xs text-white/30">{{ $meta['short'] }}</span>
+                                @endif
+                            </a>
+                        @endforeach
+                        </div>
+                    </div>
+
+                @if ($authenticated)
+                    <a href="{{ route('admin.quotations.index') }}"
+                       class="label-xs hidden items-center gap-2 rounded-full border border-white/20 px-4 py-2.5 text-white/80 transition-colors duration-300 hover:border-ember-500 hover:text-white sm:flex">
+                        <x-icons.user class="size-3.5" />
+                        {{ $authenticated->name }}
+                    </a>
+
+                    <form method="POST" action="{{ route('admin.logout') }}" class="hidden sm:block">
+                        @csrf
+                        <button type="submit" aria-label="{{ __('admin.logout') }}" data-tooltip="{{ __('admin.logout') }}"
+                                class="grid size-10 place-items-center rounded-full border border-white/20 text-white/70 transition-colors duration-300 hover:border-red-400/60 hover:text-red-200">
+                            <x-icons.logout class="size-4" />
+                        </button>
+                    </form>
+                @else
+                    <a href="{{ route('admin.login') }}"
+                       class="label-xs hidden items-center gap-2 rounded-full border border-white/20 px-4 py-2.5 text-white/80 transition-colors duration-300 hover:border-ember-500 hover:bg-ember-500 hover:text-white sm:flex">
+                        <x-icons.lock class="size-3.5" />
+                        {{ __('landing.nav.restricted') }}
+                    </a>
+                @endif
+
+                <button type="button" @click="menu = true" aria-label="{{ __('landing.actions.open_menu') }}"
+                        class="grid size-9 place-items-center text-white lg:hidden">
+                    <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                        <path d="M4 7h16M4 12h16M4 17h16"/>
                     </svg>
                 </button>
-
-                <div x-cloak x-show="open"
-                     x-transition:enter="transition duration-200 ease-out"
-                     x-transition:enter-start="opacity-0 -translate-y-1"
-                     x-transition:enter-end="opacity-100 translate-y-0"
-                     x-transition:leave="transition duration-150 ease-in"
-                     x-transition:leave-start="opacity-100"
-                     x-transition:leave-end="opacity-0"
-                     class="absolute right-0 top-full z-50 mt-3 w-48 rounded-xl border border-white/15 bg-night-900/95 py-1.5 shadow-2xl shadow-night-950/50 backdrop-blur-md">
-                    @foreach ($locales as $code => $meta)
-                        <a href="{{ route('locale.switch', $code) }}"
-                           @if ($code === $currentLocale) aria-current="true" @endif
-                           class="flex items-center justify-between px-4 py-2.5 text-[12px] transition-colors {{ $code === $currentLocale ? 'text-white' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
-                            <span>{{ $meta['label'] }}</span>
-                            @if ($code === $currentLocale)
-                                <span class="size-1.5 rounded-full bg-ember-500"></span>
-                            @else
-                                <span class="label-xs text-white/30">{{ $meta['short'] }}</span>
-                            @endif
-                        </a>
-                    @endforeach
-                </div>
             </div>
-
-            <button type="button" @click="menu = true" aria-label="{{ __('landing.actions.open_menu') }}"
-                    class="grid size-9 place-items-center text-white lg:hidden">
-                <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-                    <path d="M4 7h16M4 12h16M4 17h16"/>
-                </svg>
-            </button>
         </div>
     </div>
 
@@ -90,6 +114,29 @@
                         {{ __('landing.nav.'.$item['key']) }}
                     </a>
                 @endforeach
+
+                @if ($authenticated)
+                    <a href="{{ route('admin.quotations.index') }}" @click="menu = false"
+                       class="label-xs mt-2 flex w-max items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-white/80">
+                        <x-icons.user class="size-3.5" />
+                        {{ $authenticated->name }}
+                    </a>
+
+                    <form method="POST" action="{{ route('admin.logout') }}">
+                        @csrf
+                        <button type="submit"
+                                class="label-xs flex w-max items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-white/60">
+                            <x-icons.logout class="size-3.5" />
+                            {{ __('admin.logout') }}
+                        </button>
+                    </form>
+                @else
+                    <a href="{{ route('admin.login') }}" @click="menu = false"
+                       class="label-xs mt-2 flex w-max items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-white/80">
+                        <x-icons.lock class="size-3.5" />
+                        {{ __('landing.nav.restricted') }}
+                    </a>
+                @endif
             </nav>
 
             <div class="border-t border-white/15 pt-5">

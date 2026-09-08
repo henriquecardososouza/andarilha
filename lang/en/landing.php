@@ -17,6 +17,7 @@ return [
         'about' => 'About',
         'destinations' => 'Destinations',
         'contact' => 'Contact',
+        'restricted' => 'Restricted area',
     ],
 
     'actions' => [
